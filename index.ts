@@ -1,11 +1,4 @@
-import * as puzzleAnswerData from "./src/puzzleAnswerData";
-import * as puzzleData from "./src/puzzleData";
-import sessionStarter  from "./src/sessionStarter";
-import testingStart from "./src/testHarness";
-
-export default {
-  ...puzzleData,
-  ...puzzleAnswerData,
-  sessionStarter,
-  testingStart,
-}
+export * from "./src/puzzleAnswerData";
+export * from "./src/puzzleData";
+export {default as sessionStarter } from "./src/sessionStarter";
+export {default as testingStart } from "./src/testHarness";

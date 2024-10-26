@@ -10,25 +10,23 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const puzzleAnswerData = __importStar(require("./src/puzzleAnswerData"));
-const puzzleData = __importStar(require("./src/puzzleData"));
-const sessionStarter_1 = __importDefault(require("./src/sessionStarter"));
-const testHarness_1 = __importDefault(require("./src/testHarness"));
-exports.default = Object.assign(Object.assign(Object.assign({}, puzzleData), puzzleAnswerData), { sessionStarter: sessionStarter_1.default,
-    testingStart: testHarness_1.default });
+exports.testingStart = exports.sessionStarter = void 0;
+__exportStar(require("./src/puzzleAnswerData"), exports);
+__exportStar(require("./src/puzzleData"), exports);
+var sessionStarter_1 = require("./src/sessionStarter");
+Object.defineProperty(exports, "sessionStarter", { enumerable: true, get: function () { return __importDefault(sessionStarter_1).default; } });
+var testHarness_1 = require("./src/testHarness");
+Object.defineProperty(exports, "testingStart", { enumerable: true, get: function () { return __importDefault(testHarness_1).default; } });
+// export default {
+//   ...puzzleData,
+//   ...puzzleAnswerData,
+//   sessionStarter,
+//   testingStart,
+// }
