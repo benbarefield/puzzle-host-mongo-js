@@ -54,6 +54,12 @@ describe("puzzle guess", () => {
     expect(result).toBe(false);
   });
 
+  test('too many answers is incorrect', async () => {
+    const result = await checkPuzzleGuess(dataAccess, puzzleId, [answer1, answer2, answer3, answer3]);
+
+    expect(result).toBe(false);
+  });
+
   test('the incorrect guess details are persisted', async () => {
     await checkPuzzleGuess(dataAccess, puzzleId, [answer1, answer3, answer2]);
 

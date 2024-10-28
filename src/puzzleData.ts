@@ -120,7 +120,7 @@ export async function checkPuzzleGuess(mongo: MongoClient, puzzleId: string, gue
     _id: { $in: puzzle.answers }
   })).toArray();
 
-  let correct = answers.length === puzzle.answers.length;
+  let correct = guess.length === puzzle.answers.length;
   for(let i = 0; i < puzzle.answers.length && correct; ++i) {
     const answer = answers.find(a => a._id.equals(puzzle.answers[i]));
     correct = answer?.value === guess[i];

@@ -117,7 +117,7 @@ function checkPuzzleGuess(mongo, puzzleId, guess) {
         const answers = yield (answerCollection.find({
             _id: { $in: puzzle.answers }
         })).toArray();
-        let correct = answers.length === puzzle.answers.length;
+        let correct = guess.length === puzzle.answers.length;
         for (let i = 0; i < puzzle.answers.length && correct; ++i) {
             const answer = answers.find(a => a._id.equals(puzzle.answers[i]));
             correct = (answer === null || answer === void 0 ? void 0 : answer.value) === guess[i];
