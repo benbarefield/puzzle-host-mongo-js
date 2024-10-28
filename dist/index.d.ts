@@ -1,4 +1,4 @@
-import {type Pool} from 'pg';
+import {MongoClient} from "mongodb";
 
 export declare function sessionStarter(connectionString?: string): Promise<any>
 
