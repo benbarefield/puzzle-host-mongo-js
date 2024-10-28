@@ -16,12 +16,17 @@ exports.getPuzzlesForUser = getPuzzlesForUser;
 exports.verifyPuzzleOwnership = verifyPuzzleOwnership;
 exports.markPuzzleAsDeleted = markPuzzleAsDeleted;
 exports.updatePuzzle = updatePuzzle;
+exports.checkPuzzleGuess = checkPuzzleGuess;
 const mongodb_1 = require("mongodb");
+const puzzleAnswerData_1 = require("./puzzleAnswerData");
 function getPuzzleCollection(mongo) {
     return mongo.db().collection("puzzle");
 }
 function getPuzzleById(mongo, id) {
     return __awaiter(this, void 0, void 0, function* () {
+        if (!mongodb_1.ObjectId.isValid(id)) {
+            return null;
+        }
         const collection = getPuzzleCollection(mongo);
         try {
             const result = yield collection.findOne({ _id: new mongodb_1.ObjectId(id), deleted: false });
@@ -30,6 +35,8 @@ function getPuzzleById(mongo, id) {
                     id: result._id.toHexString(),
                     name: result.name,
                     owner: result.owner,
+                    lastGuessResult: result.lastGuessResult,
+                    lastGuessDate: result.lastGuessDate ? new Date(result.lastGuessDate) : undefined,
                 };
             }
         }
@@ -59,6 +66,8 @@ function getPuzzlesForUser(mongo, userId) {
             id: p._id.toHexString(),
             owner: p.owner,
             name: p.name,
+            lastGuessDate: p.lastGuessDate ? new Date(p.lastGuessDate) : undefined,
+            lastGuessResult: p.lastGuessResult,
         }));
     });
 }
@@ -92,5 +101,33 @@ function updatePuzzle(mongo, puzzleId, name) {
         catch (e) {
         }
         return false;
+    });
+}
+function checkPuzzleGuess(mongo, puzzleId, guess) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!mongodb_1.ObjectId.isValid(puzzleId)) {
+            return null;
+        }
+        const puzzleCollection = getPuzzleCollection(mongo);
+        const puzzle = yield puzzleCollection.findOne({ _id: new mongodb_1.ObjectId(puzzleId), deleted: false });
+        if (!puzzle) {
+            return null;
+        }
+        const answerCollection = (0, puzzleAnswerData_1.getPuzzleAnswerCollection)(mongo);
+        const answers = yield (answerCollection.find({
+            _id: { $in: puzzle.answers }
+        })).toArray();
+        let correct = answers.length === puzzle.answers.length;
+        for (let i = 0; i < puzzle.answers.length && correct; ++i) {
+            const answer = answers.find(a => a._id.equals(puzzle.answers[i]));
+            correct = (answer === null || answer === void 0 ? void 0 : answer.value) === guess[i];
+        }
+        yield puzzleCollection.updateOne({ _id: new mongodb_1.ObjectId(puzzleId) }, {
+            $set: {
+                lastGuessDate: Date.now(),
+                lastGuessResult: correct,
+            },
+        });
+        return correct;
     });
 }

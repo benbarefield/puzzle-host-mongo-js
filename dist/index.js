@@ -24,9 +24,3 @@ var sessionStarter_1 = require("./src/sessionStarter");
 Object.defineProperty(exports, "sessionStarter", { enumerable: true, get: function () { return __importDefault(sessionStarter_1).default; } });
 var testHarness_1 = require("./src/testHarness");
 Object.defineProperty(exports, "testingStart", { enumerable: true, get: function () { return __importDefault(testHarness_1).default; } });
-// export default {
-//   ...puzzleData,
-//   ...puzzleAnswerData,
-//   sessionStarter,
-//   testingStart,
-// }

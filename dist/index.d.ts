@@ -6,14 +6,17 @@ export interface Puzzle {
   id: string
   name: string
   owner: string
+  lastGuessDate?: Date
+  lastGuessResult?: boolean
 }
 
-export declare function getPuzzleById(pg : Pool, id: string) : Promise<Puzzle | null>
-export declare function createPuzzle(pg: Pool, name: string, ownerId: string): Promise<string>
-export declare function getPuzzlesForUser(pg: Pool, userId: string): Promise<Puzzle[]>
-export declare function verifyPuzzleOwnership(pg: Pool, puzzleId: string, userId: string): Promise<boolean | null>
-export declare function markPuzzleAsDeleted(pg: Pool, puzzleId: string): Promise<boolean>
-export declare function updatePuzzle(pg: Pool, puzzleId: string, name: string): Promise<boolean>
+export declare function getPuzzleById(mongo: MongoClient, id: string) : Promise<Puzzle | null>
+export declare function createPuzzle(mongo: MongoClient, name: string, ownerId: string): Promise<string>
+export declare function getPuzzlesForUser(mongo: MongoClient, userId: string): Promise<Puzzle[]>
+export declare function verifyPuzzleOwnership(mongo: MongoClient, puzzleId: string, userId: string): Promise<boolean | null>
+export declare function markPuzzleAsDeleted(mongo: MongoClient, puzzleId: string): Promise<boolean>
+export declare function updatePuzzle(mongo: MongoClient, puzzleId: string, name: string): Promise<boolean>
+export declare function checkPuzzleGuess(mongo: MongoClient, puzzleId: string, guess: string[]): Promise<boolean | null>
 
 export interface PuzzleAnswer {
   id: string
@@ -22,11 +25,11 @@ export interface PuzzleAnswer {
   answerIndex: number
 }
 
-export declare function createPuzzleAnswer(pg: Pool, puzzle: string, value: string, answerIndex: number): Promise<string | null>
-export declare function getPuzzleAnswerById(pg: Pool, id: string) : Promise<PuzzleAnswer | null>
-export declare function removePuzzleAnswer(pg: Pool, id: string): Promise<boolean>
-export declare function updatePuzzleAnswer(pg: Pool, id: string, value: string | undefined, answerIndex: number | undefined) : Promise<boolean>
-export declare function getAnswersForPuzzle(pg: Pool, puzzleId: string) : Promise<PuzzleAnswer[]>
+export declare function createPuzzleAnswer(mongo: MongoClient, puzzle: string, value: string, answerIndex: number): Promise<string | null>
+export declare function getPuzzleAnswerById(mongo: MongoClient, id: string) : Promise<PuzzleAnswer | null>
+export declare function removePuzzleAnswer(mongo: MongoClient, id: string): Promise<boolean>
+export declare function updatePuzzleAnswer(mongo: MongoClient, id: string, value: string | undefined, answerIndex: number | undefined) : Promise<boolean>
+export declare function getAnswersForPuzzle(mongo: MongoClient, puzzleId: string) : Promise<PuzzleAnswer[]>
 
 export interface TestingHarness {
   dataAccess: Pool,
