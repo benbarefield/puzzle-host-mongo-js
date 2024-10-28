@@ -32,7 +32,7 @@ export declare function updatePuzzleAnswer(mongo: MongoClient, id: string, value
 export declare function getAnswersForPuzzle(mongo: MongoClient, puzzleId: string) : Promise<PuzzleAnswer[]>
 
 export interface TestingHarness {
-  dataAccess: Pool,
+  dataAccess: MongoClient,
   teardown: () => Promise<void>
 }
 
