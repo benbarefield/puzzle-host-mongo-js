@@ -1,16 +1,21 @@
 import {MongoClient, ObjectId} from "mongodb";
+import {getPuzzleAnswerCollection} from "./puzzleAnswerData";
 
 export interface PuzzleData {
   name: string
   owner: string
   deleted: boolean
   answers: ObjectId[]
+  lastGuessDate?: number
+  lastGuessResult?: boolean
 }
 
 export interface Puzzle {
   id: string
   name: string
   owner: string
+  lastGuessDate?: Date
+  lastGuessResult?: boolean
 }
 
 export function getPuzzleCollection(mongo: MongoClient) {
@@ -18,8 +23,9 @@ export function getPuzzleCollection(mongo: MongoClient) {
 }
 
 export async function getPuzzleById(mongo : MongoClient, id: string) : Promise<Puzzle | null> {
-  const collection = getPuzzleCollection(mongo);
+  if(!ObjectId.isValid(id)) { return null; }
 
+  const collection = getPuzzleCollection(mongo);
 
   try {
     const result = await collection.findOne({_id: new ObjectId(id), deleted: false});
@@ -28,6 +34,8 @@ export async function getPuzzleById(mongo : MongoClient, id: string) : Promise<P
         id: result._id.toHexString(),
         name: result.name,
         owner:result.owner,
+        lastGuessResult: result.lastGuessResult,
+        lastGuessDate: result.lastGuessDate ? new Date(result.lastGuessDate) : undefined,
       };
     }
   }
@@ -60,6 +68,8 @@ export async function getPuzzlesForUser(mongo: MongoClient, userId: string): Pro
     id: p._id.toHexString(),
     owner: p.owner,
     name: p.name,
+    lastGuessDate: p.lastGuessDate ? new Date(p.lastGuessDate) : undefined,
+    lastGuessResult: p.lastGuessResult,
   }));
 }
 
@@ -92,4 +102,36 @@ export async function updatePuzzle(mongo: MongoClient, puzzleId: string, name: s
   }
 
   return false;
+}
+
+export async function checkPuzzleGuess(mongo: MongoClient, puzzleId: string, guess: string[]): Promise<boolean | null> {
+  if(!ObjectId.isValid(puzzleId)) {
+    return null;
+  }
+
+  const puzzleCollection = getPuzzleCollection(mongo);
+  const puzzle = await puzzleCollection.findOne({_id: new ObjectId(puzzleId), deleted: false});
+  if(!puzzle) {
+    return null;
+  }
+
+  const answerCollection = getPuzzleAnswerCollection(mongo);
+  const answers = await (answerCollection.find({
+    _id: { $in: puzzle.answers }
+  })).toArray();
+
+  let correct = answers.length === puzzle.answers.length;
+  for(let i = 0; i < puzzle.answers.length && correct; ++i) {
+    const answer = answers.find(a => a._id.equals(puzzle.answers[i]));
+    correct = answer?.value === guess[i];
+  }
+
+  await puzzleCollection.updateOne({_id: new ObjectId(puzzleId)}, {
+    $set: {
+      lastGuessDate: Date.now(),
+      lastGuessResult: correct,
+    },
+  });
+
+  return correct;
 }

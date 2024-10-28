@@ -10,7 +10,7 @@ import {
   updatePuzzleAnswer
 } from "../src/puzzleAnswerData";
 
-describe("puzzle data", () => {
+describe("puzzle answer data", () => {
   let dataAccess: MongoClient, teardown: () => Promise<void>;
   let puzzleId: string;
   beforeEach(async () => {
