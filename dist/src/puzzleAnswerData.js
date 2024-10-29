@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,16 +7,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPuzzleAnswerCollection = getPuzzleAnswerCollection;
-exports.createPuzzleAnswer = createPuzzleAnswer;
-exports.getPuzzleAnswerById = getPuzzleAnswerById;
-exports.removePuzzleAnswer = removePuzzleAnswer;
-exports.updatePuzzleAnswer = updatePuzzleAnswer;
-exports.getAnswersForPuzzle = getAnswersForPuzzle;
-const mongodb_1 = require("mongodb");
-const puzzleData_1 = require("./puzzleData");
-function getPuzzleAnswerCollection(mongo) {
+import { ObjectId } from "mongodb";
+import { getPuzzleCollection } from "./puzzleData";
+export function getPuzzleAnswerCollection(mongo) {
     return mongo.db().collection("puzzle-answer");
 }
 function getAnswerIndexFromPuzzle(puzzle, id) {
@@ -28,20 +20,20 @@ function getAnswerIndexFromPuzzle(puzzle, id) {
     }
     return -1;
 }
-function createPuzzleAnswer(mongo, puzzle, value, answerIndex) {
+export function createPuzzleAnswer(mongo, puzzle, value, answerIndex) {
     return __awaiter(this, void 0, void 0, function* () {
         let newId = null;
         const session = mongo.startSession();
-        if (!mongodb_1.ObjectId.isValid(puzzle)) {
+        if (!ObjectId.isValid(puzzle)) {
             return null;
         }
         try {
             session.startTransaction();
-            const puzzleCollection = (0, puzzleData_1.getPuzzleCollection)(mongo);
+            const puzzleCollection = getPuzzleCollection(mongo);
             const answerCollection = getPuzzleAnswerCollection(mongo);
-            const answerResult = yield answerCollection.insertOne({ value, puzzle: new mongodb_1.ObjectId(puzzle) });
+            const answerResult = yield answerCollection.insertOne({ value, puzzle: new ObjectId(puzzle) });
             newId = answerResult.insertedId.toHexString();
-            const result = yield puzzleCollection.updateOne({ _id: new mongodb_1.ObjectId(puzzle), deleted: false }, {
+            const result = yield puzzleCollection.updateOne({ _id: new ObjectId(puzzle), deleted: false }, {
                 "$push": {
                     "answers": {
                         $each: [answerResult.insertedId],
@@ -64,14 +56,14 @@ function createPuzzleAnswer(mongo, puzzle, value, answerIndex) {
         return newId;
     });
 }
-function getPuzzleAnswerById(mongo, id) {
+export function getPuzzleAnswerById(mongo, id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const puzzleCollection = (0, puzzleData_1.getPuzzleCollection)(mongo);
+        const puzzleCollection = getPuzzleCollection(mongo);
         const answerCollection = getPuzzleAnswerCollection(mongo);
-        if (!mongodb_1.ObjectId.isValid(id)) {
+        if (!ObjectId.isValid(id)) {
             return null;
         }
-        const answer = yield answerCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+        const answer = yield answerCollection.findOne({ _id: new ObjectId(id) });
         if (!answer) {
             return null;
         }
@@ -87,9 +79,9 @@ function getPuzzleAnswerById(mongo, id) {
         };
     });
 }
-function removePuzzleAnswer(mongo, id) {
+export function removePuzzleAnswer(mongo, id) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (!mongodb_1.ObjectId.isValid(id)) {
+        if (!ObjectId.isValid(id)) {
             return false;
         }
         const session = mongo.startSession();
@@ -97,12 +89,12 @@ function removePuzzleAnswer(mongo, id) {
         try {
             session.startTransaction();
             const answerCollection = getPuzzleAnswerCollection(mongo);
-            const puzzleCollection = (0, puzzleData_1.getPuzzleCollection)(mongo);
-            const answer = yield answerCollection.findOne({ _id: new mongodb_1.ObjectId(id) });
+            const puzzleCollection = getPuzzleCollection(mongo);
+            const answer = yield answerCollection.findOne({ _id: new ObjectId(id) });
             if (!answer) {
                 throw new Error("No answer for the id");
             }
-            const answerResult = yield answerCollection.deleteOne({ _id: new mongodb_1.ObjectId(id) });
+            const answerResult = yield answerCollection.deleteOne({ _id: new ObjectId(id) });
             if (answerResult.deletedCount !== 1) {
                 throw new Error("Error deleting answer");
             }
@@ -126,23 +118,23 @@ function removePuzzleAnswer(mongo, id) {
         return success;
     });
 }
-function updatePuzzleAnswer(mongo_1, id_1) {
+export function updatePuzzleAnswer(mongo_1, id_1) {
     return __awaiter(this, arguments, void 0, function* (mongo, id, value = undefined, answerIndex = undefined) {
         const answerCollection = getPuzzleAnswerCollection(mongo);
-        if (!mongodb_1.ObjectId.isValid(id)) {
+        if (!ObjectId.isValid(id)) {
             return false;
         }
         if (value === undefined && answerIndex === undefined) {
             return true;
         }
         if (answerIndex === undefined) {
-            const result = yield answerCollection.updateOne({ _id: new mongodb_1.ObjectId(id) }, { $set: { value } });
+            const result = yield answerCollection.updateOne({ _id: new ObjectId(id) }, { $set: { value } });
             return result.modifiedCount === 1;
         }
         let success = false;
         const session = mongo.startSession();
         try {
-            const answerId = new mongodb_1.ObjectId(id);
+            const answerId = new ObjectId(id);
             if (value !== undefined) {
                 const result = yield answerCollection.updateOne({ _id: answerId }, { $set: { value } });
                 if (result.modifiedCount !== 1) {
@@ -153,7 +145,7 @@ function updatePuzzleAnswer(mongo_1, id_1) {
             if (answer === null) {
                 throw new Error("Error finding answer");
             }
-            const puzzleCollection = (0, puzzleData_1.getPuzzleCollection)(mongo);
+            const puzzleCollection = getPuzzleCollection(mongo);
             let puzzleResult = yield puzzleCollection.updateOne({ _id: answer.puzzle }, {
                 $pull: {
                     answers: answerId,
@@ -184,14 +176,14 @@ function updatePuzzleAnswer(mongo_1, id_1) {
         return success;
     });
 }
-function getAnswersForPuzzle(mongo, puzzleId) {
+export function getAnswersForPuzzle(mongo, puzzleId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const puzzleCollection = (0, puzzleData_1.getPuzzleCollection)(mongo);
+        const puzzleCollection = getPuzzleCollection(mongo);
         const answerCollection = getPuzzleAnswerCollection(mongo);
-        if (!mongodb_1.ObjectId.isValid(puzzleId)) {
+        if (!ObjectId.isValid(puzzleId)) {
             return [];
         }
-        const puzzle = yield puzzleCollection.findOne({ _id: new mongodb_1.ObjectId(puzzleId) });
+        const puzzle = yield puzzleCollection.findOne({ _id: new ObjectId(puzzleId) });
         if (!puzzle) {
             return [];
         }
