@@ -1,6 +1,5 @@
 {
   "name": "puzzle-host-db-js-mongo",
-  "type": "module",
   "version": "1.0.0",
   "scripts": {
     "build": "rimraf dist && npx tsc && copyfiles index.d.ts ./dist/",
@@ -8,6 +7,7 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": ["dist"],
   "devDependencies": {
     "@shelf/jest-mongodb": "^4.3.2",
     "@types/jest": "^29.5.14",
